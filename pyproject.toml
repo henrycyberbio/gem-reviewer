@@ -1,0 +1,19 @@
+[project]
+name = "gem-reviewer"
+version = "0.1.0"
+description = "Reproducible, provenance-preserving review workflow for immutable GEM inputs"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+gem-review = "gem_reviewer.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

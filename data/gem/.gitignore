@@ -1,0 +1,4 @@
+# GEM input is immutable and deliberately untracked.
+*
+!.gitignore
+!README.md

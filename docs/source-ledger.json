@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "http://bigg.ucsd.edu/models/iEC1372_W3110",
+      "title": "BiGG iEC1372_W3110 model record",
+      "accessed": "2026-08-28"
+    },
+    {
+      "id": 2,
+      "url": "https://cobrapy.readthedocs.io/en/latest/building_model.html",
+      "title": "COBRApy model validation documentation",
+      "accessed": "2026-08-28"
+    },
+    {
+      "id": 3,
+      "url": "https://memote.readthedocs.io/en/latest",
+      "title": "MEMOTE documentation",
+      "accessed": "2026-08-28"
+    }
+  ]
+}

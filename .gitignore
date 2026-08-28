@@ -1,0 +1,10 @@
+# Python environments and interpreter artifacts
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local test/review scratch data
+.verification/
+
+# Generated outputs are ignored by outputs/.gitignore.

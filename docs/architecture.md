@@ -20,7 +20,7 @@ Keep only these durable areas:
 
 | Location | Role | Git policy |
 | --- | --- | --- |
-| `data/gem/` | Original downloaded GEM bytes, read-only | ignored; never modified |
+| `data/gem/` | Original downloaded GEM bytes, read-only | ignored by default; track only with explicit user approval |
 | `docs/source-ledger.json` | URLs used to define/interpret the review | tracked |
 | `docs/architecture.md` | decisions, boundaries, acceptance criteria | tracked |
 | `src/gem_reviewer/` | reproducible orchestration and checks | tracked |
@@ -33,7 +33,7 @@ No notebooks, manual spreadsheet analyses, or stateful GUI operations belong in 
 
 ### ADR-001 — Use the BiGG SBML download as the canonical first input
 
-When acquisition is authorized, retrieve the `iEC1372_W3110.xml` artifact linked from the BiGG model page, preserving its bytes exactly. Record the model-page URL, direct-download URL, publisher update date, retrieval time, filename, size, and SHA-256 in `outputs/<run-id>/input-manifest.json`. The supplied JSON and MAT exports are not substitutes; they may be separately compared later only after each is frozen and hashed.[1]
+When acquisition is authorized, retrieve the `iEC1372_W3110.xml` artifact linked from the BiGG model page, preserving its bytes exactly. Record the model-page URL, direct-download URL, publisher update date, retrieval time, filename, size, and SHA-256 in a tracked source manifest for the approved input and in each review run's `outputs/<run-id>/input-manifest.json`. The supplied JSON and MAT exports are not substitutes; they may be separately compared later only after each is frozen and hashed.[1]
 
 **Why:** SBML is the exchange format that the current COBRApy documentation can validate, so it supports a minimal parser/validator path without converting the source artifact.[2]
 

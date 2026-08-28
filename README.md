@@ -4,7 +4,11 @@ A reproducible review workflow for an **immutable** GEM input. The project uses 
 
 > **Hermes experiment project.** This repository is an experimental project operated with Hermes Agent. Each Git commit created by the agent will include a `Co-authored-by: Hermes Agent <noreply@nousresearch.com>` trailer in addition to the repository's configured human author.
 
-The first candidate model is BiGG `iEC1372_W3110`. Its scope, minimal architecture, tool choices, and staged acceptance criteria are recorded in [docs/architecture.md](docs/architecture.md). No GEM has been acquired or reviewed yet.
+The first candidate model is BiGG `iEC1372_W3110`. Its scope, minimal architecture, tool choices, and staged acceptance criteria are recorded in [docs/architecture.md](docs/architecture.md). The source artifact is frozen; no substantive GEM review has been performed yet.
+
+## Approved tracked input
+
+With explicit user approval, this repository tracks the immutable BiGG SBML artifact [`data/gem/iEC1372_W3110.xml`](data/gem/iEC1372_W3110.xml). Its source, publisher attribution, associated publication, retrieval record, byte count, and SHA-256 are recorded in [`data/gem/iEC1372_W3110.source.json`](data/gem/iEC1372_W3110.source.json). Future GEMs remain ignored by default and may be added to Git **only after explicit user approval**.
 
 ## Guarantees
 

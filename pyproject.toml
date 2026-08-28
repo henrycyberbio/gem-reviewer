@@ -4,10 +4,13 @@ version = "0.1.0"
 description = "Reproducible, provenance-preserving review workflow for immutable GEM inputs"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "cobra>=0.32,<0.33",
+]
 
 [project.scripts]
 gem-review = "gem_reviewer.cli:main"
+gem-count = "gem_reviewer.entity_counts:main"
 
 [dependency-groups]
 dev = [

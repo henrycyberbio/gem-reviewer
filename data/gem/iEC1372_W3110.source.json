@@ -1,0 +1,24 @@
+{
+  "model_id": "iEC1372_W3110",
+  "artifact": {
+    "path": "data/gem/iEC1372_W3110.xml",
+    "format": "SBML",
+    "byte_count": 10825362,
+    "sha256": "109290d2e2407a94f8088f9ef9fd40f6db6b73b1cf36574d6d987527ece8d9b7"
+  },
+  "source": {
+    "publisher": "BiGG Models / Systems Biology Research Group, UC San Diego",
+    "model_record_url": "http://bigg.ucsd.edu/models/iEC1372_W3110",
+    "direct_download_url": "http://bigg.ucsd.edu/static/models/iEC1372_W3110.xml",
+    "publisher_download_updated": "2019-10-31",
+    "retrieved_at_utc": "2026-08-28T10:11:46Z",
+    "license_url": "http://bigg.ucsd.edu/license"
+  },
+  "associated_publication": {
+    "pmid": "27667363",
+    "doi": "10.1016/j.cels.2016.08.013",
+    "citation": "Monk JM, Koza A, Campodonico MA, Machado D, Seoane JM, Palsson BO, Herrgard MJ, Feist AM. Multi-omics Quantification of Species Variation of Escherichia coli Links Molecular Features with Strain Phenotypes. Cell Systems. 2016;3(3):238-251.e12.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/27667363/"
+  },
+  "integrity_policy": "This file is a frozen input. Do not modify, normalize, or regenerate it in place; download a separately named artifact for any later source revision."
+}

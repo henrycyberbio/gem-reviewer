@@ -25,7 +25,7 @@ Keep only these durable areas:
 | `docs/architecture.md` | decisions, boundaries, acceptance criteria | tracked |
 | `src/gem_reviewer/` | reproducible orchestration and checks | tracked |
 | `outputs/<run-id>/` | generated manifests, tool results, figures, and machine-readable findings | ignored |
-| `reports/` | generated human-facing review reports sourced from evidence | ignored |
+| `reports/` | human-facing review reports sourced from evidence | ignored by default; track only named reports with explicit user approval |
 
 No notebooks, manual spreadsheet analyses, or stateful GUI operations belong in the pipeline.
 
@@ -69,7 +69,7 @@ Every finding—whether structural, solver-based, model-assisted, or literature-
 }
 ```
 
-The human report is rendered from these evidence-bearing records; it is never the only record of a conclusion.
+The human report is rendered from these evidence-bearing records; it is never the only record of a conclusion. Findings and reports use English only; machine-readable findings must declare `language: "en"`.
 
 ### ADR-006 — Do not define biological scenarios before a protocol exists
 

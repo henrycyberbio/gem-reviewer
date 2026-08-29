@@ -9,5 +9,8 @@ __pycache__/
 
 # Generated outputs are ignored by outputs/.gitignore.
 
-# Generated review reports are evidence artifacts, not source-controlled prose.
-reports/
+# Review reports are ignored by default. The user has approved the named
+# iEC1372_W3110 example report as the sole tracked exception.
+reports/*
+!reports/.gitignore
+!reports/iEC1372_W3110_REPORT.md

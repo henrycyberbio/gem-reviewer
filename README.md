@@ -16,6 +16,7 @@ With explicit user approval, this repository tracks the immutable BiGG SBML arti
 - **Provenance is checked per preflight run.** The frozen source manifest supplies source/version/hash facts; `input-integrity.json` records the before/after hash check.
 - **Generated outputs are separate and untracked.** Put an input under `data/gem/` or elsewhere; write each run to a fresh subdirectory of `outputs/`.
 - **Conclusions are traceable.** Every generated conclusion includes evidence keys that point to fields in the generated report. Any future model-assisted conclusion must additionally record the model artifact, prompt/configuration, and raw output; any external assertion must cite its public source.
+- **Findings and review reports are English-only.** Machine-readable findings declare `language: "en"`; tracked and generated reports must not contain Chinese text.
 - **The technical preflight is rerunnable.** A single `uv run gem-preflight ...` command writes all Phase 2A evidence artifacts.
 
 ## Reproduce the SBML preflight
@@ -38,7 +39,7 @@ uv run gem-preflight \
    - `sbml-validation.json` — raw COBRApy/libSBML diagnostic categories
    - `structural-summary.json` and `findings.json` — evidence-bearing structural facts and limitations
 
-Generated human-readable review reports belong under `reports/` and are intentionally ignored by Git, like other evidence artifacts.
+Human-readable review reports belong under `reports/` and are ignored by Git by default. A report may be tracked only after explicit user approval for that exact report; the approved exception is [`reports/iEC1372_W3110_REPORT.md`](reports/iEC1372_W3110_REPORT.md).
 
 The command refuses to overwrite a non-empty output directory. To rerun, use a different output directory or explicitly remove a previous **generated** directory after preserving it if needed.
 

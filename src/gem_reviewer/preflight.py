@@ -93,6 +93,7 @@ def run_preflight(*, gem_path: Path, source_manifest_path: Path, output_dir: Pat
     findings = [
         {
             "id": "input-integrity",
+            "language": "en",
             "claim": "The frozen GEM bytes match the approved source manifest before and after preflight.",
             "severity": "info",
             "evidence": [{"kind": "generated-output", "locator": "input-integrity.json"}],
@@ -100,6 +101,7 @@ def run_preflight(*, gem_path: Path, source_manifest_path: Path, output_dir: Pat
         },
         {
             "id": "sbml-validation",
+            "language": "en",
             "claim": "COBRApy SBML validation diagnostics were captured without modifying the frozen GEM.",
             "severity": finding_severity,
             "evidence": [{"kind": "generated-output", "locator": "sbml-validation.json"}],

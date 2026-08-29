@@ -245,8 +245,10 @@ def test_memote_baseline_fire_cli_parses_named_options_and_returns_success(
         return execution_path
 
     monkeypatch.setattr("gem_reviewer.memote_baseline_cli.run_memote_baseline", fake_baseline)
-    main(
+    monkeypatch.setattr(
+        "sys.argv",
         [
+            "gem-memote-baseline",
             "--gem",
             str(GEM_PATH),
             "--source-manifest",
@@ -257,8 +259,9 @@ def test_memote_baseline_fire_cli_parses_named_options_and_returns_success(
             "20",
             "--wall-timeout",
             "300",
-        ]
+        ],
     )
+    main()
 
     assert observed["gem_path"] == GEM_PATH
     assert observed["source_manifest_path"] == SOURCE_MANIFEST_PATH
@@ -269,10 +272,11 @@ def test_memote_baseline_fire_cli_parses_named_options_and_returns_success(
 
 
 def test_memote_baseline_fire_cli_help_is_discoverable(
-    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    monkeypatch.setattr("sys.argv", ["gem-memote-baseline", "--help"])
     with pytest.raises(FireExit) as exit_info:
-        main(["--help"])
+        main()
 
     output = capsys.readouterr()
     help_text = output.out + output.err

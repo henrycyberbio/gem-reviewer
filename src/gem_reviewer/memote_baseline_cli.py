@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Sequence
 
 import fire
 
@@ -43,9 +42,9 @@ def run(
     raise SystemExit(execution["memote_exit_code"] or 1)
 
 
-def main(command: Sequence[str] | None = None) -> None:
+def main() -> None:
     """Expose the baseline command through Python Fire."""
-    fire.Fire(run, command=command, name="gem-memote-baseline")
+    fire.Fire(run, name="gem-memote-baseline")
 
 
 if __name__ == "__main__":

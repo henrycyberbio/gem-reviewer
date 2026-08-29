@@ -91,6 +91,17 @@ printf 'MEMOTE baseline PID: %s\nLauncher log: %s\n' "${baseline_pid}" "${launch
 
 Inspect `memote-execution.json` after the process exits. A completed baseline has `status: "completed"`; timeout status returns CLI exit code 124. Raw logs and metadata remain available for unsuccessful runs.
 
+## Normalize a completed MEMOTE baseline
+
+After a baseline has completed successfully, derive grouped diagnostics and a run-specific human report with:
+
+```bash
+uv run gem-memote-summarize \
+  --output-dir outputs/iEC1372_W3110-memote-baseline-<run-id>
+```
+
+The command verifies the execution status and raw result hash, then adds `memote-summary.json` and `memote-findings.json` to the existing run directory. It writes `reports/<run-directory-name>-report.md` separately and refuses to overwrite any derived artifact. Scalar MEMOTE results count as one terminal case; parameterized results count only their passed, failed, or skipped child cases. Results and claims are grouped by MEMOTE's default test families and explicitly describe default-condition diagnostics, not biological conclusions. The raw gzip result, execution metadata, logs, staged model, frozen GEM, and existing findings are not changed.
+
 ## Development
 
 ```bash

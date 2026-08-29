@@ -15,6 +15,7 @@ gem-review = "gem_reviewer.cli:main"
 gem-count = "gem_reviewer.entity_counts:main"
 gem-preflight = "gem_reviewer.preflight_cli:main"
 gem-memote-baseline = "gem_reviewer.memote_baseline_cli:main"
+gem-memote-summarize = "gem_reviewer.memote_summary_cli:main"
 
 [dependency-groups]
 dev = [

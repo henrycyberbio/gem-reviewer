@@ -1,6 +1,6 @@
 # GEM Reviewer architecture decisions
 
-**Status:** Phase 2C reproducible MEMOTE baseline orchestration is implemented for the approved first target; the potentially long full baseline has not been executed. Substantive review remains deferred pending a versioned scientific protocol.
+**Status:** Phase 2C reproducible MEMOTE baseline execution and evidence normalization are implemented for the approved first target. Substantive review remains deferred pending a versioned scientific protocol.
 
 ## 1. Boundary and known target
 
@@ -59,6 +59,8 @@ The Phase 2C `gem-memote-baseline` command enforces a stronger execution boundar
 - It records a portable argument vector, interpreter and MEMOTE versions, timestamps, duration, exit status, timeout status, and hashes of every raw artifact, while excluding machine-specific executable and absolute filesystem paths.
 - It appends an English-only normalized execution finding. A failed or timed-out baseline remains evidence, not a successful score.
 
+The separate `gem-memote-summarize` command accepts only a completed, hash-verified baseline. It leaves all baseline artifacts unchanged, normalizes scalar results as one terminal case and parameterized results as their child cases only, groups passed/failed/skipped outcomes by MEMOTE's default test families, and writes evidence-linked English diagnostics plus a run-specific human report. Every generated claim is explicitly limited to MEMOTE default-condition diagnostics and excludes biological conclusions.
+
 ### ADR-005 — Separate claim generation from evidence rendering
 
 Every finding—whether structural, solver-based, model-assisted, or literature-backed—must contain:
@@ -93,7 +95,7 @@ Flux balance analysis, growth tests, gene knockouts, media assumptions, objectiv
 | 1 — Acquire and freeze | Download the specified SBML exactly once into `data/gem/`; write a source/hash manifest | Complete: frozen source and manifest are Git-tracked with explicit approval | Format conversion or repair |
 | 2A — Technical preflight | Add pinned parser dependency and load the frozen SBML | Complete: `gem-preflight` writes machine-readable integrity, environment, validation, structural-summary, and finding artifacts | Interpreting diagnostics as biological validity |
 | 2B — MEMOTE compatibility spike | Run a small selected MEMOTE subset against the frozen model | Complete: the SBML subset passes with the locked dependency set | Treating subset success as a complete baseline |
-| 2C — Reproducible MEMOTE baseline | Provide a bounded, non-overwriting command for the complete suite | Complete: the tested command preserves a staged input, raw artifacts, execution metadata, input hashes, and normalized findings in a fresh directory; the long baseline itself remains pending | Running the potentially long full suite during implementation |
+| 2C — Reproducible MEMOTE baseline | Execute and normalize the complete suite without changing baseline evidence | Complete: tested commands preserve the staged input and raw artifacts, verify hashes, normalize terminal cases without double counting, group evidence-linked findings, and render a separate run-specific report | Treating default-condition diagnostics as biological conclusions |
 | 4 — Directed review protocol | Agree review questions, conditions, external references, and pass/fail interpretation | Protocol is versioned before scenarios execute | Exploratory/manual scenario tuning |
 | 5 — Review report | Render report strictly from artifacts and cited sources | Every report conclusion resolves to an output pointer, model artifact, or public source | Untraceable prose |
 
@@ -106,7 +108,7 @@ Flux balance analysis, growth tests, gene knockouts, media assumptions, objectiv
 
 ## 6. Next decision required
 
-Phase 2C command implementation is complete, while the full MEMOTE execution remains pending as a bounded background run. Before Phase 4, provide or approve the scientific questions and acceptance criteria; the model URL alone does not define a substantive biological review.
+Phase 2C command implementation and the POC baseline execution are complete. Before Phase 4, provide or approve the scientific questions and acceptance criteria; the model URL alone does not define a substantive biological review.
 
 ## Sources
 

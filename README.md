@@ -1,20 +1,22 @@
 # GEM Reviewer
 
-A reproducible review workflow for an **immutable** GEM input. The project uses Python 3.11+ and [`uv`](https://docs.astral.sh/uv/) for all environments and dependencies.
+A reproducible workflow for reviewing genome-scale metabolic models (GEMs). A GEM represents an organism's metabolic network as genes, reactions, metabolites, and constraints that can be analyzed computationally. This workflow reviews model provenance and identity, technical validity, structural and annotation quality, model diagnostics, and, in later stages, protocol-defined scientific questions.
+
+Source GEM inputs are treated as immutable review evidence: the workflow reads or stages byte-identical copies but never modifies them.
 
 > **Hermes experiment project.** This repository is an experimental project operated with Hermes Agent. Each Git commit created by the agent will include a `Co-authored-by: Hermes Agent <noreply@nousresearch.com>` trailer in addition to the repository's configured human author.
 
-The first candidate model is BiGG `iEC1372_W3110`. Its scope, minimal architecture, tool choices, and staged acceptance criteria are recorded in [docs/architecture.md](docs/architecture.md). The source artifact is frozen; no substantive GEM review has been performed yet.
+BiGG `iEC1372_W3110` is the proof-of-concept (POC) review case used to develop and demonstrate this workflow. Its scope, minimal architecture, tool choices, and staged acceptance criteria are recorded in [docs/architecture.md](docs/architecture.md).
 
 ## Approved tracked input
 
-With explicit user approval, this repository tracks the immutable BiGG SBML artifact [`data/gem/iEC1372_W3110.xml`](data/gem/iEC1372_W3110.xml). Its source, publisher attribution, associated publication, retrieval record, byte count, and SHA-256 are recorded in [`data/gem/iEC1372_W3110.source.json`](data/gem/iEC1372_W3110.source.json). Future GEMs remain ignored by default and may be added to Git **only after explicit user approval**.
+With explicit user approval, this repository tracks the immutable BiGG SBML artifact [`data/gem/iEC1372_W3110.xml`](data/gem/iEC1372_W3110.xml). Its source, publisher attribution, associated publication, retrieval record, byte count, and SHA-256 are recorded in [`data/gem/iEC1372_W3110.source.json`](data/gem/iEC1372_W3110.source.json). Every artifact under `data/`, `reports/`, or `outputs/` requires explicit user approval for that specific artifact before it may be added to Git, committed, or synchronized.
 
 ## Guarantees
 
 - **GEM input is never modified.** Preflight reads the frozen file; the MEMOTE subprocess receives only a byte-identical staged copy in a new output directory.
 - **Provenance is checked per run.** The frozen source manifest supplies source/version/hash facts; both preflight and MEMOTE baseline metadata record before/after input hashes.
-- **Generated outputs are separate and untracked.** Put an input under `data/gem/` or elsewhere; write each run to a fresh subdirectory of `outputs/`.
+- **Generated outputs are separate and approval-gated.** Write each run to a fresh subdirectory of `outputs/`; each specific output artifact requires explicit user approval before Git add, commit, or synchronization.
 - **Conclusions are traceable.** Every generated conclusion includes evidence keys that point to fields in the generated report. Any future model-assisted conclusion must additionally record the model artifact, prompt/configuration, and raw output; any external assertion must cite its public source.
 - **Findings and review reports are English-only.** Machine-readable findings declare `language: "en"`; tracked and generated reports must not contain Chinese text.
 - **The technical preflight is rerunnable.** A single `uv run gem-preflight ...` command writes all Phase 2A evidence artifacts.
@@ -40,7 +42,7 @@ uv run gem-preflight \
    - `sbml-validation.json` — raw COBRApy/libSBML diagnostic categories
    - `structural-summary.json` and `findings.json` — evidence-bearing structural facts and limitations
 
-Human-readable review reports belong under `reports/` and are ignored by Git by default. A report may be tracked only after explicit user approval for that exact report; the approved exception is [`reports/iEC1372_W3110_REPORT.md`](reports/iEC1372_W3110_REPORT.md).
+Human-readable review reports belong under `reports/`. Each specific report requires explicit user approval before Git add, commit, or synchronization; the approved report is [`reports/iEC1372_W3110_REPORT.md`](reports/iEC1372_W3110_REPORT.md).
 
 The command refuses to overwrite a non-empty output directory. To rerun, use a different output directory or explicitly remove a previous **generated** directory after preserving it if needed.
 
@@ -71,7 +73,7 @@ The wall timeout bounds the MEMOTE subprocess to two hours; the solver timeout a
 - `memote-execution.json` — portable invocation, tool versions, timing, status, input hashes, and artifact hashes; local installation and absolute filesystem paths are excluded
 - Phase 2A preflight artifacts, with the MEMOTE execution finding appended to `findings.json`
 
-For a later bounded background run from Git Bash, use this launch sequence. The launcher log stays beside the new output directory so redirection does not create that directory before the baseline claims it. The baseline itself has intentionally not been run as part of development or testing:
+For a bounded background run from Git Bash, use this launch sequence. The launcher log stays beside the new output directory so redirection does not create that directory before the baseline claims it:
 
 ```bash
 run_id="iEC1372_W3110-memote-baseline-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -95,4 +97,4 @@ Inspect `memote-execution.json` after the process exits. A completed baseline ha
 uv run pytest -q
 ```
 
-The repository includes one explicitly approved, frozen GEM. Phase 2A establishes technical integrity, Phase 2B establishes MEMOTE compatibility, and Phase 2C provides the reproducible baseline command. None of these makes a substantive biological review finding.
+The repository includes one explicitly approved, frozen GEM. The technical stages establish input integrity, validation evidence, structural and annotation evidence, and reproducible model diagnostics. Protocol-defined scientific review questions are addressed separately in later stages.

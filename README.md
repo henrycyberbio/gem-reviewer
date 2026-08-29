@@ -20,6 +20,7 @@ With explicit user approval, this repository tracks the immutable BiGG SBML arti
 - **Conclusions are traceable.** Every generated conclusion includes evidence keys that point to fields in the generated report. Any future model-assisted conclusion must additionally record the model artifact, prompt/configuration, and raw output; any external assertion must cite its public source.
 - **Findings and review reports are English-only.** Machine-readable findings declare `language: "en"`; tracked and generated reports must not contain Chinese text.
 - **The technical preflight is rerunnable.** A single `uv run gem-preflight ...` command writes all Phase 2A evidence artifacts.
+- **Preflight metadata is portable.** JSON metadata records project-relative input locators or neutral role names and excludes absolute local paths, usernames, IP addresses, and executable paths.
 - **The MEMOTE baseline is reproducible and bounded.** `gem-memote-baseline` records a portable command, tool versions, timestamps, exit status, timeouts, artifact hashes, raw combined log, and raw collected result without persisting machine-specific paths.
 
 ## Reproduce the SBML preflight

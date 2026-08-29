@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import json
 import platform
-import sys
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -28,6 +27,14 @@ def _read_source_manifest(path: Path) -> Mapping[str, Any]:
 
 def _write_json(path: Path, payload: Mapping[str, Any] | list[Mapping[str, Any]]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _project_relative_path(path: Path, *, fallback: str) -> str:
+    """Return a traceable locator without exposing a machine-local path."""
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return fallback
 
 
 def run_preflight(*, gem_path: Path, source_manifest_path: Path, output_dir: Path) -> Path:
@@ -59,16 +66,22 @@ def run_preflight(*, gem_path: Path, source_manifest_path: Path, output_dir: Pat
     validation_counts = {category: len(messages) for category, messages in validation.items()}
     finding_severity = "failure" if any("ERROR" in key or "FATAL" in key for key, count in validation_counts.items() if count) else "warning" if any("WARNING" in key for key, count in validation_counts.items() if count) else "info"
     input_integrity = {
-        "gem_path": str(gem_path),
-        "source_manifest_path": str(source_manifest_path),
+        "gem_path": _project_relative_path(gem_path, fallback="frozen-input.xml"),
+        "source_manifest_path": _project_relative_path(
+            source_manifest_path, fallback="source-manifest.json"
+        ),
         "byte_count": byte_count,
         "sha256_before": sha256_before,
         "sha256_after": sha256_after,
         "matches_source_manifest": True,
     }
     environment = {
-        "python_version": sys.version,
-        "platform": platform.platform(),
+        "python_version": platform.python_version(),
+        "platform": {
+            "system": platform.system(),
+            "release": platform.release(),
+            "machine": platform.machine(),
+        },
         "cobra_version": cobra.__version__,
         "libsbml_version": libsbml.getLibSBMLDottedVersion(),
     }

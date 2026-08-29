@@ -1,12 +1,12 @@
 # GEM Reviewer architecture decisions
 
-**Status:** proposed for the first target; implementation is deliberately deferred pending approval of the phase gates.
+**Status:** Phase 2A preflight is implemented for the approved first target; substantive review remains deferred pending a versioned scientific protocol.
 
 ## 1. Boundary and known target
 
 The first proposed target is BiGG `iEC1372_W3110`: *Escherichia coli* K-12 W3110 (genome `NC_007779.1`). The BiGG record lists 1,918 metabolites, 2,758 reactions, and 1,372 genes; it offers SBML, JSON, and MAT downloads and identifies 31 October 2019 as the download update date.[1]
 
-This document records a **review harness**, not a model-curation project. The GEM must never be edited, normalized in place, or committed as if it were source code. No model file was downloaded, parsed, or reviewed while making these decisions.
+This document records a **review harness**, not a model-curation project. The GEM must never be edited, normalized in place, or regenerated. The approved source artifact is tracked with its provenance manifest; no substantive biological review has been performed.
 
 ## 2. Smallest useful architecture
 
@@ -41,9 +41,9 @@ When acquisition is authorized, retrieve the `iEC1372_W3110.xml` artifact linked
 
 The first implemented review stage will parse and validate the frozen SBML, then report reproducible structural facts and validation diagnostics. It must not imply biological correctness from successful parsing.
 
-### ADR-003 — Treat COBRApy as the first parser/validation candidate; defer installation
+### ADR-003 — Use locked COBRApy as the first parser/validation implementation
 
-COBRApy documents SBML reading/writing and `validate_sbml_model`, so it is the smallest candidate to spike for parsing and validation.[2] It is **not installed today**; do not add it until the next phase includes a compatibility spike against the frozen input.
+COBRApy documents SBML reading/writing and `validate_sbml_model`, so it is the smallest reader/validator path.[2] The project locks `cobra>=0.32,<0.33` and its `python-libSBML` dependency. The Phase 2A command captures its versions and raw diagnostics without writing to the input.
 
 ### ADR-004 — Treat MEMOTE as an optional benchmark, not a gate
 
@@ -79,23 +79,23 @@ Flux balance analysis, growth tests, gene knockouts, media assumptions, objectiv
 
 | Phase | Work | Acceptance criterion | Explicit non-goal |
 | --- | --- | --- | --- |
-| 0 — Environment and scope | Record interpreter, `uv`, Git, available model tools, model identity, and architecture | This document exists; no GEM is acquired or analyzed | Installing scientific stacks or running a model |
-| 1 — Acquire and freeze | Download the specified SBML exactly once into `data/gem/`; write a source/hash manifest | Recomputed SHA-256 matches the manifest before and after the run; source bytes remain unchanged | Format conversion or repair |
-| 2 — Compatibility spike | Add pinned parser dependency and load the frozen SBML | A scripted load/validation produces machine-readable diagnostics and tool versions | Interpreting diagnostics as biological validity |
+| 0 — Environment and scope | Record interpreter, `uv`, Git, available model tools, model identity, and architecture | Complete | Biological interpretation |
+| 1 — Acquire and freeze | Download the specified SBML exactly once into `data/gem/`; write a source/hash manifest | Complete: frozen source and manifest are Git-tracked with explicit approval | Format conversion or repair |
+| 2 — Compatibility spike | Add pinned parser dependency and load the frozen SBML | Complete: `gem-preflight` writes machine-readable integrity, environment, validation, structural-summary, and finding artifacts | Interpreting diagnostics as biological validity |
 | 3 — Baseline quality | Run structural checks; optionally run MEMOTE if the spike proves reproducible | One command creates a fresh output directory containing raw tool artifacts and normalized findings | Silent fixes or scoring-only conclusions |
 | 4 — Directed review protocol | Agree review questions, conditions, external references, and pass/fail interpretation | Protocol is versioned before scenarios execute | Exploratory/manual scenario tuning |
 | 5 — Review report | Render report strictly from artifacts and cited sources | Every report conclusion resolves to an output pointer, model artifact, or public source | Untraceable prose |
 
 ## 5. Current environment assessment
 
-- Available: Python 3.11.13, `uv` 0.12.5, and Git 2.39.1.
-- Not installed: COBRApy, python-libSBML, and MEMOTE.
-- The repository has an initial, uncommitted generic JSON scaffold. It is not yet an implementation for the SBML target and must not be presented as having reviewed `iEC1372_W3110`.
-- Git lacks a configured author identity, so no commits can be created until the user supplies a repository-local name and email.
+- Available: Python 3.11.13, `uv` 0.12.5, Git 2.39.1, locked COBRApy 0.32.1, and its python-libSBML dependency.
+- Not installed: MEMOTE. It remains an optional Phase 2B compatibility spike rather than a preflight dependency.
+- The repository has a reproducible SBML preflight implementation. It must not be presented as a substantive review of `iEC1372_W3110`.
+- The repository has a configured local author identity and remote publication path.
 
 ## 6. Next decision required
 
-Authorize Phase 1 only when ready: acquire **the exact SBML artifact** from BiGG and freeze its provenance. Before Phase 4, provide or approve the scientific questions and acceptance criteria; the model URL alone does not define a substantive biological review.
+Phase 2B may now test MEMOTE compatibility in isolation. Before Phase 4, provide or approve the scientific questions and acceptance criteria; the model URL alone does not define a substantive biological review.
 
 ## Sources
 

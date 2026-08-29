@@ -1,6 +1,6 @@
 # GEM Review Report
 
-**Status:** No GEM has been supplied or reviewed.
+**Status:** Frozen source acquired; Phase 2A technical preflight completed. No substantive biological review has been performed.
 
 ## Scope
 
@@ -15,16 +15,16 @@ This report is intentionally limited to a review run's generated artifacts. It m
 
 | Field | Value |
 | --- | --- |
-| GEM source URL | Pending |
-| GEM declared version | Pending |
-| GEM SHA-256 | Pending |
-| Generated report | Pending |
-| Reproduction command | Pending |
+| GEM source URL | `http://bigg.ucsd.edu/models/iEC1372_W3110` |
+| GEM declared version | BiGG download updated 2019-10-31 |
+| GEM SHA-256 | `109290d2e2407a94f8088f9ef9fd40f6db6b73b1cf36574d6d987527ece8d9b7` |
+| Generated report | Phase 2A preflight artifacts under an ignored `outputs/iEC1372_W3110-preflight-<run-id>/` directory |
+| Reproduction command | `uv run gem-preflight --gem data/gem/iEC1372_W3110.xml --source-manifest data/gem/iEC1372_W3110.source.json --output-dir outputs/iEC1372_W3110-preflight-<run-id>` |
 
 ## Findings
 
-No findings are asserted before an immutable GEM input and review criteria are provided.
+Phase 2A establishes only that the stored bytes match the source manifest and that the frozen SBML can be read and validated by the locked technical environment. Its generated diagnostics must be consulted for the exact run-specific result. These are technical facts, not a biological quality conclusion.
 
 ## Limitations
 
-The current implementation performs a structural JSON review and reports item count only. Domain-specific evaluation criteria, external public sources, and model-assisted review are intentionally out of scope until supplied and versioned.
+The current implementation performs a read-only SBML preflight, including source-integrity checks, environment capture, SBML diagnostics, and a structural summary. Domain-specific evaluation criteria, MEMOTE benchmark interpretation, experimental conditions, and model-assisted review remain out of scope until supplied and versioned.

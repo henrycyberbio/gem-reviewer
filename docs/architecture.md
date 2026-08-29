@@ -25,7 +25,7 @@ Keep only these durable areas:
 | `docs/architecture.md` | decisions, boundaries, acceptance criteria | tracked |
 | `src/gem_reviewer/` | reproducible orchestration and checks | tracked |
 | `outputs/<run-id>/` | generated manifests, tool results, figures, and machine-readable findings | ignored |
-| `reports/REVIEW_REPORT.md` | review report skeleton; later filled only from evidence | tracked |
+| `reports/` | generated human-facing review reports sourced from evidence | ignored |
 
 No notebooks, manual spreadsheet analyses, or stateful GUI operations belong in the pipeline.
 
@@ -45,9 +45,9 @@ The first implemented review stage will parse and validate the frozen SBML, then
 
 COBRApy documents SBML reading/writing and `validate_sbml_model`, so it is the smallest reader/validator path.[2] The project locks `cobra>=0.32,<0.33` and its `python-libSBML` dependency. The Phase 2A command captures its versions and raw diagnostics without writing to the input.
 
-### ADR-004 — Treat MEMOTE as an optional benchmark, not a gate
+### ADR-004 — Lock MEMOTE after a successful SBML compatibility spike, but do not treat it as a biological gate
 
-MEMOTE supplies standardized model tests and report generation, including basic, biomass, stoichiometry, SBML, and annotation-oriented tests.[3] Add it only if its installation and execution are reproducible under the locked environment. Preserve its raw report and command output as evidence. A MEMOTE score/report is a benchmark artifact, not an unqualified biological conclusion.
+MEMOTE supplies standardized model tests and report generation, including basic, biomass, stoichiometry, SBML, and annotation-oriented tests.[3] An isolated spike installed MEMOTE 0.17.0 alongside COBRApy 0.32.1, and the `test_sbml` subset completed successfully (two tests passed) without changing the frozen input. MEMOTE is therefore locked as a project dependency. Preserve each raw report and command output under `outputs/<run-id>/`; a score/report is a benchmark artifact, not an unqualified biological conclusion. A complete suite may require a long-running background job because the initial foreground attempt was stopped by the execution time limit after progressing through 70% of its collected tests.
 
 ### ADR-005 — Separate claim generation from evidence rendering
 
@@ -82,20 +82,20 @@ Flux balance analysis, growth tests, gene knockouts, media assumptions, objectiv
 | 0 — Environment and scope | Record interpreter, `uv`, Git, available model tools, model identity, and architecture | Complete | Biological interpretation |
 | 1 — Acquire and freeze | Download the specified SBML exactly once into `data/gem/`; write a source/hash manifest | Complete: frozen source and manifest are Git-tracked with explicit approval | Format conversion or repair |
 | 2 — Compatibility spike | Add pinned parser dependency and load the frozen SBML | Complete: `gem-preflight` writes machine-readable integrity, environment, validation, structural-summary, and finding artifacts | Interpreting diagnostics as biological validity |
-| 3 — Baseline quality | Run structural checks; optionally run MEMOTE if the spike proves reproducible | One command creates a fresh output directory containing raw tool artifacts and normalized findings | Silent fixes or scoring-only conclusions |
+| 3 — Baseline quality | Run selected or complete MEMOTE suites against the frozen model | The command creates a fresh output directory containing raw tool artifacts and normalized findings; whole-suite runs use a bounded background job if required | Silent fixes or scoring-only conclusions |
 | 4 — Directed review protocol | Agree review questions, conditions, external references, and pass/fail interpretation | Protocol is versioned before scenarios execute | Exploratory/manual scenario tuning |
 | 5 — Review report | Render report strictly from artifacts and cited sources | Every report conclusion resolves to an output pointer, model artifact, or public source | Untraceable prose |
 
 ## 5. Current environment assessment
 
 - Available: Python 3.11.13, `uv` 0.12.5, Git 2.39.1, locked COBRApy 0.32.1, and its python-libSBML dependency.
-- Not installed: MEMOTE. It remains an optional Phase 2B compatibility spike rather than a preflight dependency.
+- Available: locked MEMOTE 0.17.0; its SBML subset was executed successfully with locked COBRApy 0.32.1. Full-suite runtime is a separate operational constraint, not evidence of incompatibility.
 - The repository has a reproducible SBML preflight implementation. It must not be presented as a substantive review of `iEC1372_W3110`.
 - The repository has a configured local author identity and remote publication path.
 
 ## 6. Next decision required
 
-Phase 2B may now test MEMOTE compatibility in isolation. Before Phase 4, provide or approve the scientific questions and acceptance criteria; the model URL alone does not define a substantive biological review.
+Phase 2B compatibility is complete. Before Phase 4, provide or approve the scientific questions and acceptance criteria; the model URL alone does not define a substantive biological review.
 
 ## Sources
 

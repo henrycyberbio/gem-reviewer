@@ -8,3 +8,6 @@ __pycache__/
 .verification/
 
 # Generated outputs are ignored by outputs/.gitignore.
+
+# Generated review reports are evidence artifacts, not source-controlled prose.
+reports/

@@ -37,7 +37,8 @@ uv run gem-preflight \
    - `environment.json` — Python, COBRApy, and libSBML versions
    - `sbml-validation.json` — raw COBRApy/libSBML diagnostic categories
    - `structural-summary.json` and `findings.json` — evidence-bearing structural facts and limitations
-   - `reports/REVIEW_REPORT.md` — human-readable report template; update it only with claims linked to generated output, model artifacts, or public sources.
+
+Generated human-readable review reports belong under `reports/` and are intentionally ignored by Git, like other evidence artifacts.
 
 The command refuses to overwrite a non-empty output directory. To rerun, use a different output directory or explicitly remove a previous **generated** directory after preserving it if needed.
 

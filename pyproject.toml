@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "cobra>=0.32,<0.33",
+    "fire>=0.7,<0.8",
     "memote==0.17.0",
 ]
 
@@ -13,6 +14,7 @@ dependencies = [
 gem-review = "gem_reviewer.cli:main"
 gem-count = "gem_reviewer.entity_counts:main"
 gem-preflight = "gem_reviewer.preflight_cli:main"
+gem-memote-baseline = "gem_reviewer.memote_baseline_cli:main"
 
 [dependency-groups]
 dev = [

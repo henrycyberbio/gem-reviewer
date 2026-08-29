@@ -1,6 +1,6 @@
 # GEM Reviewer architecture decisions
 
-**Status:** Phase 2A preflight is implemented for the approved first target; substantive review remains deferred pending a versioned scientific protocol.
+**Status:** Phase 2C reproducible MEMOTE baseline orchestration is implemented for the approved first target; the potentially long full baseline has not been executed. Substantive review remains deferred pending a versioned scientific protocol.
 
 ## 1. Boundary and known target
 
@@ -49,6 +49,16 @@ COBRApy documents SBML reading/writing and `validate_sbml_model`, so it is the s
 
 MEMOTE supplies standardized model tests and report generation, including basic, biomass, stoichiometry, SBML, and annotation-oriented tests.[3] An isolated spike installed MEMOTE 0.17.0 alongside COBRApy 0.32.1, and the `test_sbml` subset completed successfully (two tests passed) without changing the frozen input. MEMOTE is therefore locked as a project dependency. Preserve each raw report and command output under `outputs/<run-id>/`; a score/report is a benchmark artifact, not an unqualified biological conclusion. A complete suite may require a long-running background job because the initial foreground attempt was stopped by the execution time limit after progressing through 70% of its collected tests.
 
+The Phase 2C `gem-memote-baseline` command enforces a stronger execution boundary:
+
+- It atomically claims a brand-new output path and refuses every existing path, including an empty directory.
+- It runs technical preflight against the frozen source, then gives MEMOTE only a byte-identical staged copy named `memote-input.xml`.
+- It hashes the frozen source before and after the full operation and records both hashes in `memote-execution.json`.
+- It applies both a per-solver timeout and an overall subprocess wall timeout.
+- It preserves the raw combined process log and raw collected result without interpreting or rewriting them.
+- It records a portable argument vector, interpreter and MEMOTE versions, timestamps, duration, exit status, timeout status, and hashes of every raw artifact, while excluding machine-specific executable and absolute filesystem paths.
+- It appends an English-only normalized execution finding. A failed or timed-out baseline remains evidence, not a successful score.
+
 ### ADR-005 — Separate claim generation from evidence rendering
 
 Every finding—whether structural, solver-based, model-assisted, or literature-backed—must contain:
@@ -81,8 +91,9 @@ Flux balance analysis, growth tests, gene knockouts, media assumptions, objectiv
 | --- | --- | --- | --- |
 | 0 — Environment and scope | Record interpreter, `uv`, Git, available model tools, model identity, and architecture | Complete | Biological interpretation |
 | 1 — Acquire and freeze | Download the specified SBML exactly once into `data/gem/`; write a source/hash manifest | Complete: frozen source and manifest are Git-tracked with explicit approval | Format conversion or repair |
-| 2 — Compatibility spike | Add pinned parser dependency and load the frozen SBML | Complete: `gem-preflight` writes machine-readable integrity, environment, validation, structural-summary, and finding artifacts | Interpreting diagnostics as biological validity |
-| 3 — Baseline quality | Run selected or complete MEMOTE suites against the frozen model | The command creates a fresh output directory containing raw tool artifacts and normalized findings; whole-suite runs use a bounded background job if required | Silent fixes or scoring-only conclusions |
+| 2A — Technical preflight | Add pinned parser dependency and load the frozen SBML | Complete: `gem-preflight` writes machine-readable integrity, environment, validation, structural-summary, and finding artifacts | Interpreting diagnostics as biological validity |
+| 2B — MEMOTE compatibility spike | Run a small selected MEMOTE subset against the frozen model | Complete: the SBML subset passes with the locked dependency set | Treating subset success as a complete baseline |
+| 2C — Reproducible MEMOTE baseline | Provide a bounded, non-overwriting command for the complete suite | Complete: the tested command preserves a staged input, raw artifacts, execution metadata, input hashes, and normalized findings in a fresh directory; the long baseline itself remains pending | Running the potentially long full suite during implementation |
 | 4 — Directed review protocol | Agree review questions, conditions, external references, and pass/fail interpretation | Protocol is versioned before scenarios execute | Exploratory/manual scenario tuning |
 | 5 — Review report | Render report strictly from artifacts and cited sources | Every report conclusion resolves to an output pointer, model artifact, or public source | Untraceable prose |
 
@@ -90,12 +101,12 @@ Flux balance analysis, growth tests, gene knockouts, media assumptions, objectiv
 
 - Available: Python 3.11.13, `uv` 0.12.5, Git 2.39.1, locked COBRApy 0.32.1, and its python-libSBML dependency.
 - Available: locked MEMOTE 0.17.0; its SBML subset was executed successfully with locked COBRApy 0.32.1. Full-suite runtime is a separate operational constraint, not evidence of incompatibility.
-- The repository has a reproducible SBML preflight implementation. It must not be presented as a substantive review of `iEC1372_W3110`.
+- The repository has reproducible SBML preflight and bounded MEMOTE baseline commands. Neither may be presented as a substantive review of `iEC1372_W3110`.
 - The repository has a configured local author identity and remote publication path.
 
 ## 6. Next decision required
 
-Phase 2B compatibility is complete. Before Phase 4, provide or approve the scientific questions and acceptance criteria; the model URL alone does not define a substantive biological review.
+Phase 2C command implementation is complete, while the full MEMOTE execution remains pending as a bounded background run. Before Phase 4, provide or approve the scientific questions and acceptance criteria; the model URL alone does not define a substantive biological review.
 
 ## Sources
 

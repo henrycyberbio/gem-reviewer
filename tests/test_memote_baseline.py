@@ -214,6 +214,54 @@ def test_memote_baseline_records_timeout_and_preserves_partial_log(
     assert (output_dir / "memote-run.log").read_text(encoding="utf-8") == "partial MEMOTE output\n"
 
 
+@pytest.mark.parametrize(
+    ("error", "expected_status"),
+    [(KeyboardInterrupt(), "interrupted"), (RuntimeError("private details"), "runner_error")],
+)
+def test_memote_baseline_checkpoints_and_finalizes_metadata_when_runner_is_interrupted(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    error: BaseException,
+    expected_status: str,
+) -> None:
+    output_dir = tmp_path / expected_status
+
+    def fake_interruption(command: list[str], **kwargs: object) -> None:
+        checkpoint = json.loads(
+            (output_dir / "memote-execution.json").read_text(encoding="utf-8")
+        )
+        assert checkpoint["status"] == "running"
+        stdout = kwargs["stdout"]
+        stdout.write(b"partial MEMOTE output\n")  # type: ignore[union-attr]
+        stdout.flush()  # type: ignore[union-attr]
+        raise error
+
+    monkeypatch.setattr("gem_reviewer.memote_baseline.subprocess.run", fake_interruption)
+
+    expected_message = "private details" if isinstance(error, RuntimeError) else None
+    with pytest.raises(type(error), match=expected_message):
+        run_memote_baseline(
+            gem_path=GEM_PATH,
+            source_manifest_path=SOURCE_MANIFEST_PATH,
+            output_dir=output_dir,
+            solver_timeout=15,
+            wall_timeout=120,
+        )
+
+    execution = json.loads(
+        (output_dir / "memote-execution.json").read_text(encoding="utf-8")
+    )
+    findings = json.loads((output_dir / "findings.json").read_text(encoding="utf-8"))
+    assert execution["status"] == expected_status
+    assert execution["runner_error"] == type(error).__name__
+    assert "private details" not in json.dumps(execution)
+    assert execution["artifacts"]["log"]["present"] is True
+    assert (output_dir / "memote-run.log").read_text(encoding="utf-8") == (
+        "partial MEMOTE output\n"
+    )
+    assert findings[-1]["id"] == "memote-baseline-execution"
+
+
 @pytest.mark.parametrize("solver_timeout, wall_timeout", [(0, 1), (1, 0), (-1, 1)])
 def test_memote_baseline_requires_positive_timeouts(
     tmp_path: Path, solver_timeout: int, wall_timeout: int

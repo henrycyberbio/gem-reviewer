@@ -43,7 +43,11 @@ def _project_relative_path(path: Path, *, fallback: str) -> str:
 
 
 def _write_json(path: Path, payload: Any) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    temporary_path = path.with_name(f".{path.name}.tmp")
+    temporary_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    temporary_path.replace(path)
 
 
 def _append_memote_finding(output_dir: Path, *, status: str, exit_code: int | None) -> None:
@@ -137,7 +141,57 @@ def run_memote_baseline(
     exit_code: int | None = None
     timed_out = False
     launch_error: str | None = None
+    runner_error: BaseException | None = None
+    execution_path = output_dir / "memote-execution.json"
+
+    def execution_metadata(*, status: str) -> dict[str, Any]:
+        finished = status != "running"
+        hash_after = _sha256(gem_path)
+        return {
+            "schema_version": 1,
+            "status": status,
+            "command": recorded_command,
+            "command_path_basis": "output_directory",
+            "working_directory": "project-root",
+            "started_at_utc": started_at,
+            "finished_at_utc": _timestamp() if finished else None,
+            "duration_seconds": (
+                round(time.monotonic() - started_monotonic, 6) if finished else None
+            ),
+            "solver_timeout_seconds": solver_timeout,
+            "wall_timeout_seconds": wall_timeout,
+            "memote_exit_code": exit_code,
+            "timed_out": timed_out,
+            "launch_error": launch_error,
+            "runner_error": (
+                type(runner_error).__name__ if runner_error is not None else None
+            ),
+            "input": {
+                "frozen_path": _project_relative_path(gem_path, fallback="frozen-input.xml"),
+                "source_manifest_path": _project_relative_path(
+                    source_manifest_path, fallback="source-manifest.json"
+                ),
+                "staged_path": staged_input_path.relative_to(output_dir).as_posix(),
+                "sha256_before": hash_before,
+                "sha256_after": hash_after,
+                "staged_sha256": staged_hash,
+                "unchanged": hash_before == hash_after,
+            },
+            "environment": {
+                "memote_executable": "memote",
+                "python_version": platform.python_version(),
+                "platform": platform.platform(),
+                "memote_version": importlib.metadata.version("memote"),
+            },
+            "artifacts": {
+                "log": _artifact(log_path, output_dir),
+                "result": _artifact(result_path, output_dir),
+                "staged_input": _artifact(staged_input_path, output_dir),
+            },
+        }
+
     with log_path.open("wb") as log_file:
+        _write_json(execution_path, execution_metadata(status="running"))
         try:
             completed = subprocess.run(
                 subprocess_command,
@@ -151,14 +205,17 @@ def run_memote_baseline(
             timed_out = True
         except OSError as error:
             launch_error = type(error).__name__
+        except BaseException as error:
+            runner_error = error
 
-    finished_at = _timestamp()
-    duration_seconds = round(time.monotonic() - started_monotonic, 6)
-    hash_after = _sha256(gem_path)
-    input_unchanged = hash_before == hash_after
+    input_unchanged = hash_before == _sha256(gem_path)
 
     if not input_unchanged:
         status = "input_changed"
+    elif isinstance(runner_error, (KeyboardInterrupt, SystemExit)):
+        status = "interrupted"
+    elif runner_error is not None:
+        status = "runner_error"
     elif timed_out:
         status = "timed_out"
     elif launch_error is not None:
@@ -168,47 +225,11 @@ def run_memote_baseline(
     else:
         status = "failed"
 
-    execution = {
-        "schema_version": 1,
-        "status": status,
-        "command": recorded_command,
-        "command_path_basis": "output_directory",
-        "working_directory": "project-root",
-        "started_at_utc": started_at,
-        "finished_at_utc": finished_at,
-        "duration_seconds": duration_seconds,
-        "solver_timeout_seconds": solver_timeout,
-        "wall_timeout_seconds": wall_timeout,
-        "memote_exit_code": exit_code,
-        "timed_out": timed_out,
-        "launch_error": launch_error,
-        "input": {
-            "frozen_path": _project_relative_path(gem_path, fallback="frozen-input.xml"),
-            "source_manifest_path": _project_relative_path(
-                source_manifest_path, fallback="source-manifest.json"
-            ),
-            "staged_path": staged_input_path.relative_to(output_dir).as_posix(),
-            "sha256_before": hash_before,
-            "sha256_after": hash_after,
-            "staged_sha256": staged_hash,
-            "unchanged": input_unchanged,
-        },
-        "environment": {
-            "memote_executable": "memote",
-            "python_version": platform.python_version(),
-            "platform": platform.platform(),
-            "memote_version": importlib.metadata.version("memote"),
-        },
-        "artifacts": {
-            "log": _artifact(log_path, output_dir),
-            "result": _artifact(result_path, output_dir),
-            "staged_input": _artifact(staged_input_path, output_dir),
-        },
-    }
-    execution_path = output_dir / "memote-execution.json"
-    _write_json(execution_path, execution)
+    _write_json(execution_path, execution_metadata(status=status))
     _append_memote_finding(output_dir, status=status, exit_code=exit_code)
 
+    if runner_error is not None:
+        raise runner_error
     if not input_unchanged:
         raise RuntimeError("Frozen GEM changed while MEMOTE was running")
     return execution_path

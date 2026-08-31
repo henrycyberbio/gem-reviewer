@@ -8,6 +8,14 @@ Source GEM inputs are treated as immutable review evidence: the workflow reads o
 
 BiGG `iEC1372_W3110` is the proof-of-concept (POC) review case used to develop and demonstrate this workflow. Its scope, minimal architecture, tool choices, and staged acceptance criteria are recorded in [docs/architecture.md](docs/architecture.md).
 
+## Project status — concluded early
+
+This experimental project is concluded before a substantive GEM review is completed. The POC established an immutable-input intake path, reproducible technical preflight, and bounded MEMOTE-baseline evidence handling, but it did not complete a full local MEMOTE baseline or a protocol-defined scientific review for either POC model.
+
+The reason is architectural rather than a claim about either GEM's quality. GEM validation is a strict, mathematically bounded pipeline: MEMOTE and continuous integration are better suited to execute standardized checks deterministically, retain raw evidence, and report regressions. An interactive Agent adds comparatively little value to that routine execution path while adding operational complexity for long-running jobs. Future work should therefore prioritize a versioned MEMOTE configuration and CI workflow; an Agent should be used only for clearly scoped tasks that require interpretation beyond those automated checks.
+
+The repository remains a POC implementation and evidence-preservation reference. Its existing reports document the completed checks and limitations; they must not be read as completed biological or full-MEMOTE reviews.
+
 ## Approved tracked input
 
 With explicit user approval, this repository tracks the immutable BiGG SBML artifact [`data/gem/iEC1372_W3110.xml`](data/gem/iEC1372_W3110.xml). Its source, publisher attribution, associated publication, retrieval record, byte count, and SHA-256 are recorded in [`data/gem/iEC1372_W3110.source.json`](data/gem/iEC1372_W3110.source.json). Every artifact under `data/`, `reports/`, or `outputs/` requires explicit user approval for that specific artifact before it may be added to Git, committed, or synchronized.
@@ -21,7 +29,7 @@ With explicit user approval, this repository tracks the immutable BiGG SBML arti
 - **Findings and review reports are English-only.** Machine-readable findings declare `language: "en"`; tracked and generated reports must not contain Chinese text.
 - **The technical preflight is rerunnable.** A single `uv run gem-preflight ...` command writes all Phase 2A evidence artifacts.
 - **Preflight metadata is portable.** JSON metadata records project-relative input locators or neutral role names and excludes absolute local paths, usernames, IP addresses, and executable paths.
-- **The MEMOTE baseline is reproducible and bounded.** `gem-memote-baseline` records a portable command, tool versions, timestamps, exit status, timeouts, artifact hashes, raw combined log, and raw collected result without persisting machine-specific paths.
+- **The MEMOTE baseline is reproducible and bounded.** `gem-memote-baseline` runs each installed test module in a separate bounded process and records portable commands, statuses, hashes, raw module evidence, and one validated merged result without persisting machine-specific paths.
 
 ## Reproduce the SBML preflight
 
@@ -66,12 +74,12 @@ uv run gem-memote-baseline \
   --wall-timeout 7200
 ```
 
-The wall timeout bounds the MEMOTE subprocess to two hours; the solver timeout applies to each mathematical optimization. A run preserves:
+The wall timeout bounds each MEMOTE module subprocess to two hours; the solver timeout applies to each mathematical optimization. A run also preserves raw `modules/*.log` and `modules/*.json.gz` evidence, and publishes the merged `memote-results.json.gz` only after all 77 emitted test objects are represented.
 
 - `memote-input.xml` — byte-identical staged input passed to MEMOTE
 - `memote-run.log` — raw combined standard output and standard error
-- `memote-results.json.gz` — raw collected MEMOTE result, when MEMOTE produces one
-- `memote-execution.json` — portable invocation, tool versions, timing, status, input hashes, and artifact hashes; local installation and absolute filesystem paths are excluded
+- `memote-results.json.gz` — validated merged MEMOTE result, only after every module succeeds
+- `memote-execution.json` — atomic batched invocation metadata, tool versions, timing, status, input hashes, and artifact hashes; local installation and absolute filesystem paths are excluded
 - Phase 2A preflight artifacts, with the MEMOTE execution finding appended to `findings.json`
 
 For a bounded background run from Git Bash, use this launch sequence. The launcher log stays beside the new output directory so redirection does not create that directory before the baseline claims it:
